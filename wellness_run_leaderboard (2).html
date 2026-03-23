@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Run 2026 - Leaderboard as of Jan. 1 - Mar. 22</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #6B2D7B; --secondary: #E63946; --accent: #FFD23F; --darker: #1A0A1F; --card-bg: rgba(107, 45, 123, 0.15); --text-primary: #FFFFFF; --text-secondary: rgba(255, 255, 255, 0.7); --elite: #FFD23F; --igniter: #E63946; --challenger: #6B2D7B; --gold: #FFD700; --silver: #C0C0C0; --bronze: #CD7F32; --male: #4A90D9; --female: #E91E8C; --finished: #00D4AA; --pending: #FF8C42; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--darker); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
+        .bg-animation::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 20% 80%, rgba(107, 45, 123, 0.25) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(230, 57, 70, 0.15) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(255, 210, 63, 0.08) 0%, transparent 50%); animation: bgPulse 15s ease-in-out infinite; }
+        @keyframes bgPulse { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(-2%, 2%) rotate(1deg); } 66% { transform: translate(2%, -2%) rotate(-1deg); } }
+        .grid-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px); background-size: 50px 50px; z-index: 1; pointer-events: none; }
+        .container { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+        .header { text-align: center; margin-bottom: 40px; animation: fadeInDown 0.8s ease-out; }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        .header-badge { display: inline-block; background: linear-gradient(135deg, var(--finished), #00B894); padding: 8px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+        .header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 6vw, 4rem); letter-spacing: 4px; line-height: 1; background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+        .header p { font-size: 1rem; color: var(--text-secondary); font-weight: 300; }
+        .goal-achieved { background: linear-gradient(135deg, var(--finished), #00B894); padding: 12px 24px; border-radius: 12px; display: inline-block; margin-top: 12px; font-weight: 600; color: #000; }
+        .hero-stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 30px; }
+        .hero-stat { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(107, 45, 123, 0.3); border-radius: 16px; padding: 16px 12px; text-align: center; position: relative; overflow: hidden; }
+        .hero-stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent)); }
+        .hero-stat.exceeded::before { background: linear-gradient(90deg, var(--finished), #00B894); }
+        .hero-stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 1px; background: linear-gradient(135deg, var(--secondary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-stat-value.exceeded { background: linear-gradient(135deg, var(--finished), #00B894); -webkit-background-clip: text; background-clip: text; }
+        .hero-stat-label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .tab-navigation { display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; flex-wrap: wrap; }
+        .tab-btn { background: var(--card-bg); border: 1px solid rgba(107, 45, 123, 0.3); color: var(--text-secondary); padding: 12px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
+        .tab-btn:hover { background: rgba(107, 45, 123, 0.3); color: var(--text-primary); }
+        .tab-btn.active { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; border-color: transparent; box-shadow: 0 4px 20px rgba(107, 45, 123, 0.4); }
+        .tab-btn.elite.active { background: linear-gradient(135deg, var(--elite), #FFA500); color: #000; }
+        .tab-btn.igniter.active { background: linear-gradient(135deg, var(--igniter), #FF6B6B); }
+        .tab-btn.challenger.active { background: linear-gradient(135deg, var(--challenger), #9B59B6); }
+        .tab-btn.overall.active { background: linear-gradient(135deg, var(--accent), #FFA500); color: #000; }
+        .tab-btn.male.active { background: linear-gradient(135deg, var(--male), #6BB3F8); }
+        .tab-btn.female.active { background: linear-gradient(135deg, var(--female), #FF69B4); }
+        .tab-btn.groups.active { background: linear-gradient(135deg, #00D4AA, #00B894); }
+        .tab-btn.finishers.active { background: linear-gradient(135deg, var(--finished), #00B894); }
+        .tab-btn.pending.active { background: linear-gradient(135deg, var(--pending), #FF6B35); }
+        .leaderboard-container { display: none; animation: fadeIn 0.5s ease-out; }
+        .leaderboard-container.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .category-header { text-align: center; margin-bottom: 24px; }
+        .category-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 2px; margin-bottom: 8px; }
+        .category-title.elite { color: var(--elite); }
+        .category-title.igniter { color: var(--igniter); }
+        .category-title.challenger { color: #B388FF; }
+        .gender-counts { display: flex; justify-content: center; gap: 20px; }
+        .gender-count { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+        .gender-count.male { color: var(--male); }
+        .gender-count.female { color: var(--female); }
+        .side-by-side { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .leaderboard-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(107, 45, 123, 0.3); border-radius: 20px; padding: 20px; }
+        .leaderboard-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .leaderboard-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .leaderboard-icon.male { background: linear-gradient(135deg, var(--male), #6BB3F8); }
+        .leaderboard-icon.female { background: linear-gradient(135deg, var(--female), #FF69B4); }
+        .leaderboard-icon.overall { background: linear-gradient(135deg, var(--accent), #FFA500); }
+        .leaderboard-icon.finisher { background: linear-gradient(135deg, var(--finished), #00B894); }
+        .leaderboard-icon.pending { background: linear-gradient(135deg, var(--pending), #FF6B35); }
+        .leaderboard-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 1px; }
+        .leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
+        .leaderboard-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; transition: all 0.2s ease; }
+        .leaderboard-item:hover { background: rgba(107, 45, 123, 0.2); transform: translateX(4px); }
+        .leaderboard-item.finished { background: rgba(0, 212, 170, 0.15); border: 1px solid rgba(0, 212, 170, 0.3); }
+        .leaderboard-item.pending { background: rgba(255, 140, 66, 0.1); border: 1px solid rgba(255, 140, 66, 0.2); }
+        .leaderboard-item.close { background: rgba(0, 212, 170, 0.1); border: 1px solid rgba(0, 212, 170, 0.2); }
+        .rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; width: 28px; text-align: center; }
+        .rank.gold { color: var(--gold); }
+        .rank.silver { color: var(--silver); }
+        .rank.bronze { color: var(--bronze); }
+        .athlete-name { flex: 1; font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .km-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.5px; }
+        .km-value.elite { color: var(--elite); }
+        .km-value.igniter { color: var(--igniter); }
+        .km-value.challenger { color: #B388FF; }
+        .km-value.male { color: var(--male); }
+        .km-value.female { color: var(--female); }
+        .km-value.overall { color: var(--accent); }
+        .km-value.finished { color: var(--finished); }
+        .km-value.pending { color: var(--pending); }
+        .km-value.close { color: var(--finished); }
+        .category-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 6px; }
+        .category-badge.elite { background: rgba(255, 215, 0, 0.2); color: var(--elite); }
+        .category-badge.igniter { background: rgba(230, 57, 70, 0.2); color: var(--igniter); }
+        .category-badge.challenger { background: rgba(107, 45, 123, 0.3); color: #B388FF; }
+        .gender-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 6px; }
+        .gender-badge.male { background: rgba(74, 144, 217, 0.2); color: var(--male); }
+        .gender-badge.female { background: rgba(233, 30, 140, 0.2); color: var(--female); }
+        .remaining-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 600; margin-left: 6px; background: rgba(255, 140, 66, 0.2); color: var(--pending); }
+        .remaining-badge.close { background: rgba(0, 212, 170, 0.2); color: var(--finished); }
+        .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .group-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(107, 45, 123, 0.3); border-radius: 20px; padding: 24px; transition: all 0.3s ease; }
+        .group-card:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.2); }
+        .group-card.exceeded { border: 2px solid var(--finished); }
+        .group-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .group-rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; width: 40px; text-align: center; }
+        .group-rank.top-3 { color: var(--accent); }
+        .group-icon { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        .group-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 1px; flex: 1; }
+        .group-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+        .group-stat { text-align: center; padding: 10px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; }
+        .group-stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent); }
+        .group-stat-label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .group-progress { margin-top: 12px; }
+        .group-progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; }
+        .group-progress-bar { height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; }
+        .group-progress-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent)); transition: width 1s ease-out; }
+        .group-progress-fill.exceeded { background: linear-gradient(90deg, var(--finished), #00B894); }
+        .finishers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .finisher-category-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(107, 45, 123, 0.3); border-radius: 20px; padding: 20px; }
+        .finisher-category-card.elite { border-top: 3px solid var(--elite); }
+        .finisher-category-card.igniter { border-top: 3px solid var(--igniter); }
+        .finisher-category-card.challenger { border-top: 3px solid #B388FF; }
+        .finisher-category-card.pending { border-top: 3px solid var(--pending); }
+        .finisher-count { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; text-align: center; margin: 10px 0; }
+        .finisher-count.elite { color: var(--elite); }
+        .finisher-count.igniter { color: var(--igniter); }
+        .finisher-count.challenger { color: #B388FF; }
+        .finisher-count.pending { color: var(--pending); }
+        .footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(107, 45, 123, 0.3); }
+        .footer p { font-size: 0.85rem; color: var(--text-secondary); }
+        .pending-list { max-height: 400px; overflow-y: auto; }
+        .pending-list::-webkit-scrollbar { width: 6px; }
+        .pending-list::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
+        .pending-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        @media (max-width: 1100px) { .finishers-grid, .three-column { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .side-by-side { grid-template-columns: 1fr; } .hero-stats { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 600px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } .tab-btn { padding: 10px 16px; font-size: 0.75rem; } .groups-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="grid-overlay"></div>
+    <div class="container">
+        <header class="header">
+            <div class="header-badge">🎉 GOAL EXCEEDED! 🎉</div>
+            <h1>Leaderboard as of Jan. 1 - Mar. 22</h1>
+            <p>Q1 Wellness Challenge • Week 1 to Week 12</p>
+            <div class="goal-achieved">🏆 25,000 KM GOAL ACHIEVED! 🏆</div>
+        </header>
+        <section class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-value">160</div><div class="hero-stat-label">Participants</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">82</div><div class="hero-stat-label">Male 👨</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">78</div><div class="hero-stat-label">Female 👩</div></div>
+            <div class="hero-stat exceeded"><div class="hero-stat-value exceeded">25,775</div><div class="hero-stat-label">KM Achieved</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">25,000</div><div class="hero-stat-label">Goal KM</div></div>
+            <div class="hero-stat exceeded"><div class="hero-stat-value exceeded">103.1%</div><div class="hero-stat-label">Progress</div></div>
+        </section>
+        <nav class="tab-navigation">
+            <button class="tab-btn elite active" onclick="showTab('elite')">🥇 Elite</button>
+            <button class="tab-btn igniter" onclick="showTab('igniter')">🥈 Igniter</button>
+            <button class="tab-btn challenger" onclick="showTab('challenger')">🥉 Challenger</button>
+            <button class="tab-btn overall" onclick="showTab('overall')">🏆 Top 10 Overall</button>
+            <button class="tab-btn male" onclick="showTab('male')">👨 Top 10 Male</button>
+            <button class="tab-btn female" onclick="showTab('female')">👩 Top 10 Female</button>
+            <button class="tab-btn finishers" onclick="showTab('finishers')">🏆 All Finishers</button>
+            <button class="tab-btn pending" onclick="showTab('pending')">⏳ Still In Progress</button>
+            <button class="tab-btn groups" onclick="showTab('groups')">🏢 Groups</button>
+        </nav>
+
+        <!-- Elite Category -->
+        <div id="elite" class="leaderboard-container active">
+            <div class="category-header">
+                <div class="category-title elite">🥇 ELITE CATEGORY - 300 KM</div>
+                <div class="gender-counts"><span class="gender-count male">👨 37 Male</span><span class="gender-count female">👩 15 Female</span></div>
+            </div>
+            <div class="side-by-side">
+                <div class="leaderboard-card">
+                    <div class="leaderboard-header"><div class="leaderboard-icon male">👨</div><div class="leaderboard-title">Male Top 10</div></div>
+                    <div class="leaderboard-list">
+                        <div class="leaderboard-item finished"><span class="rank gold">1</span><span class="athlete-name">Palaypayon, Erick 🏆</span><span class="km-value finished">1,063.58</span></div>
+                        <div class="leaderboard-item finished"><span class="rank silver">2</span><span class="athlete-name">Castro, Arnel 🏆</span><span class="km-value finished">1,274.08</span></div>
+                        <div class="leaderboard-item finished"><span class="rank bronze">3</span><span class="athlete-name">Ventura, Giussepp 🏆</span><span class="km-value finished">715.22</span></div>
+                        <div class="leaderboard-item"><span class="rank">4</span><span class="athlete-name">Andrade, Aron Keith 🏆</span><span class="km-value elite">372.36</span></div>
+                        <div class="leaderboard-item"><span class="rank">5</span><span class="athlete-name">Arzaga, Charlie 🏆</span><span class="km-value elite">477.73</span></div>
+                        <div class="leaderboard-item"><span class="rank">6</span><span class="athlete-name">Remerata, Mickhel Davee 🏆</span><span class="km-value elite">312.50</span></div>
+                        <div class="leaderboard-item"><span class="rank">7</span><span class="athlete-name">Abrogar, Angelo 🏆</span><span class="km-value elite">365.54</span></div>
+                        <div class="leaderboard-item"><span class="rank">8</span><span class="athlete-name">Aguason, Krissel John 🏆</span><span class="km-value elite">381.38</span></div>
+                        <div class="leaderboard-item"><span class="rank">9</span><span class="athlete-name">Daitol, Charles 🏆</span><span class="km-value elite">458.30</span></div>
+                        <div class="leaderboard-item"><span class="rank">10</span><span class="athlete-name">Manuel, Roderick 🏆</span><span class="km-value elite">371.40</span></div>
+                    </div>
+                </div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-header"><div class="leaderboard-icon female">👩</div><div class="leaderboard-title">Female Top 10</div></div>
+                    <div class="leaderboard-list">
+                        <div class="leaderboard-item finished"><span class="rank gold">1</span><span class="athlete-name">Salandanan, Anne Jeline 🏆</span><span class="km-value finished">1,093.80</span></div>
+                        <div class="leaderboard-item finished"><span class="rank silver">2</span><span class="athlete-name">Batle, Luzmae Ann 🏆</span><span class="km-value finished">432.63</span></div>
+                        <div class="leaderboard-item finished"><span class="rank bronze">3</span><span class="athlete-name">Funtilar, Maria Angelica 🏆</span><span class="km-value finished">340.19</span></div>
+                        <div class="leaderboard-item"><span class="rank">4</span><span class="athlete-name">Lamanilao, Rasyl Mae 🏆</span><span class="km-value elite">306.54</span></div>
+                        <div class="leaderboard-item"><span class="rank">5</span><span class="athlete-name">Dacasin, Jeny Lou</span><span class="km-value elite">263.50</span></div>
+                        <div class="leaderboard-item"><span class="rank">6</span><span class="athlete-name">Penafiel, Mae Anne</span><span class="km-value elite">199.77</span></div>
+                        <div class="leaderboard-item"><span class="rank">7</span><span class="athlete-name">Sorilla, Ibby Joice</span><span class="km-value elite">154.10</span></div>
+                        <div class="leaderboard-item"><span class="rank">8</span><span class="athlete-name">Llido, Nica Andrea</span><span class="km-value elite">135.39</span></div>
+                        <div class="leaderboard-item"><span class="rank">9</span><span class="athlete-name">Peticaros, Aiza Joyce</span><span class="km-value elite">130.30</span></div>
+                        <div class="leaderboard-item"><span class="rank">10</span><span class="athlete-name">Valdevieso, Jessa</span><span class="km-value elite">126.32</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Igniter Category -->
+        <div id="igniter" class="leaderboard-container">
+            <div class="category-header">
+                <div class="category-title igniter">🥈 IGNITER CATEGORY - 100 KM</div>
+                <div class="gender-counts"><span class="gender-count male">👨 35 Male</span><span class="gender-count female">👩 45 Female</span></div>
+            </div>
+            <div class="side-by-side">
+                <div class="leaderboard-card">
+                    <div class="leaderboard-header"><div class="leaderboard-icon male">👨</div><div class="leaderboard-title">Male Top 10</div></div>
+                    <div class="leaderboard-list">
+                        <div class="leaderboard-item finished"><span class="rank gold">1</span><span class="athlete-name">Perdon, Morris Raymond 🏆</span><span class="km-value finished">485.61</span></div>
+                        <div class="leaderboard-item finished"><span class="rank silver">2</span><span class="athlete-name">Padada, Leonard 🏆</span><span class="km-value finished">181.80</span></div>
+                        <div class="leaderboard-item finished"><span class="rank bronze">3</span><span class="athlete-name">Anglo, Edward 🏆</span><span class="km-value finished">256.30</span></div>
+                        <div class="leaderboard-item"><span class="rank">4</span><span class="athlete-name">Villasin, Jhan Vincent 🏆</span><span class="km-value igniter">169.77</span></div>
+                        <div class="leaderboard-item"><span class="rank">5</span><span class="athlete-name">Aque, Arbill 🏆</span><span class="km-value igniter">139.70</span></div>
+                        <div class="leaderboard-item"><span class="rank">6</span><span class="athlete-name">Valencia, John Vincent 🏆</span><span class="km-value igniter">139.81</span></div>
+                        <div class="leaderboard-item"><span class="rank">7</span><span class="athlete-name">Ramos, John Sedric 🏆</span><span class="km-value igniter">137.30</span></div>
+                        <div class="leaderboard-item"><span class="rank">8</span><span class="athlete-name">Villanueva, Kent 🏆</span><span class="km-value igniter">129.07</span></div>
+                        <div class="leaderboard-item"><span class="rank">9</span><span class="athlete-name">Turin, Jessie Rom 🏆</span><span class="km-value igniter">124.49</span></div>
+                        <div class="leaderboard-item"><span class="rank">10</span><span class="athlete-name">Padin, Japhet 🏆</span><span class="km-value igniter">120.20</span></div>
+                    </div>
+                </div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-header"><div class="leaderboard-icon female">👩</div><div class="leaderboard-title">Female Top 10</div></div>
+                    <div class="leaderboard-list">
+                        <div class="leaderboard-item finished"><span class="rank gold">1</span><span class="athlete-name">Fajardo, Lizzie 🏆</span><span class="km-value finished">428.74</span></div>
+                        <div class="leaderboard-item finished"><span class="rank silver">2</span><span class="athlete-name">De Vera, Lyn 🏆</span><span class="km-value finished">303.20</span></div>
+                        <div class="leaderboard-item finished"><span class="rank bronze">3</span><span class="athlete-name">Cristobal, Claire 🏆</span><span class="km-value finished">496.10</span></div>
+                        <div class="leaderboard-item"><span class="rank">4</span><span class="athlete-name">Ponsica, Mylene 🏆</span><span class="km-value igniter">552.95</span></div>
+                        <div class="leaderboard-item"><span class="rank">5</span><span class="athlete-name">Guan, Hazel Grace 🏆</span><span class="km-value igniter">247.83</span></div>
+                        <div class="leaderboard-item"><span class="rank">6</span><span class="athlete-name">Gomez, Jonah 🏆</span><span class="km-value igniter">196.80</span></div>
+                        <div class="leaderboard-item"><span class="rank">7</span><span class="athlete-name">Cueva, Lilian 🏆</span><span class="km-value igniter">138.80</span></div>
+                        <div class="leaderboard-item"><span class="rank">8</span><span class="athlete-name">Milana, Ryah Anne 🏆</span><span class="km-value igniter">116.70</span></div>
+                        <div class="leaderboard-item"><span class="rank">9</span><span class="athlete-name">Zambale, Mary Ann 🏆</span><span class="km-value igniter">158.05</span></div>
+                        <div class="leaderboard-item"><span class="rank">10</span><span class="athlete-name">Ongyaco, Sharmaine 🏆</span><span class="km-value igniter">138.23</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenger Category -->
+        <div id="challenger" class="leaderboard-container">
+            <div class="category-header">
+                <div class="category-title challenger">🥉 CHALLENGER CATEGORY - 50 KM</div>
+                <div class="gender-counts"><span class="gender-count male">👨 10 Male</span><span class="gender-count female">👩 18 Female</span></div>
+            </div>
+            <div class="side-by-side">
+                <div class="leaderboard-card">
+                    <div class="leaderboard-header"><div class="leaderboard-icon male">👨</div><div class="leaderboard-title">Male Top 10</div></div>
+                    <div class="leaderboard-list">
+                        <div class="leaderboard-item finished"><span class="rank gold">1</span><span class="athlete-name">Olarte, Xanders 🏆</span><span class="km-value finished">88.20</span></div>
+                        <div class="leaderboard-item finished"><span class="rank silver">2</span><span class="athlete-name">Villanueva, Novie Alfred 🏆</span><span class="km-value finished">100.59</span></div>
+                        <div class="leaderboard-item finished"><span class="rank bronze">3</span><span class="athlete-name">Sibal, Raye Vanne 🏆</span><span class="km-value finished">58.72</span></div>
+                        <div class="leaderboard-item"><span class="rank">4</span><span class="athlete-name">Palad, Jonelle</span><span class="km-value challenger">33.43</span></div>
+                        <div class="leaderboard-item"><span class="rank">5</span><span class="athlete-name">Medil, Johanson</span><span class="km-value challenger">30.00</span></div>
+                        <div class="leaderboard-item"><span class="rank">6</span><span class="athlete-name">Dasalla, Cris Eric Jr.</span><span class="km-value challenger">9.45</span></div>
+                        <div class="leaderboard-item"><span class="rank">7</span><span class="athlete-name">Vios, Kurt Jason</span><span class="km-value challenger">4.89</span></div>
+                        <div class="leaderboard-item"><span class="rank">8</span><span class="athlete-name">David, Kurt Dade</span><span class="km-value challenger">3.98</span></div>
+                        <div class="leaderboard-item"><span class="rank">9</span><span class="athlete-name">Alonzo, Ritz</span><span class="km-value challenger">3.78</span></div>
+                        <div class="leaderboard-item"><span class="rank">10</span><span class="athlete-name">Dela Cueva, Gabriel</span><span class="km-value challenger">0.00</span></div>
+                    </div>
+                </div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-header"><div class="leaderboard-icon female">👩</div><div class="leaderboard-title">Female Top 10</div></div>
+                    <div class="leaderboard-list">
+                        <div class="leaderboard-item finished"><span class="rank gold">1</span><span class="athlete-name">Flores, Casi 🏆</span><span class="km-value finished">351.57</span></div>
+                        <div class="leaderboard-item finished"><span class="rank silver">2</span><span class="athlete-name">Dulhao, Dulce Rose 🏆</span><span class="km-value finished">88.41</span></div>
+                        <div class="leaderboard-item finished"><span class="rank bronze">3</span><span class="athlete-name">Quimson, Annette 🏆</span><span class="km-value finished">118.00</span></div>
+                        <div class="leaderboard-item"><span class="rank">4</span><span class="athlete-name">Ramos, Allana Gilda 🏆</span><span class="km-value challenger">72.10</span></div>
+                        <div class="leaderboard-item"><span class="rank">5</span><span class="athlete-name">Izon, Allea 🏆</span><span class="km-value challenger">57.78</span></div>
+                        <div class="leaderboard-item"><span class="rank">6</span><span class="athlete-name">Subido, Kristine 🏆</span><span class="km-value challenger">57.18</span></div>
+                        <div class="leaderboard-item"><span class="rank">7</span><span class="athlete-name">Vivas, Nica Angela 🏆</span><span class="km-value challenger">54.44</span></div>
+                        <div class="leaderboard-item"><span class="rank">8</span><span class="athlete-name">Gatdula, Khristine Joy 🏆</span><span class="km-value challenger">50.96</span></div>
+                        <div class="leaderboard-item"><span class="rank">9</span><span class="athlete-name">Graycochea, Shaira Shane 🏆</span><span class="km-value challenger">50.69</span></div>
+                        <div class="leaderboard-item"><span class="rank">10</span><span class="athlete-name">Tarrobago-Moll, Ivy</span><span class="km-value challenger">48.79</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 10 Overall -->
+        <div id="overall" class="leaderboard-container">
+            <div class="category-header">
+                <div class="category-title" style="color: var(--accent);">🏆 TOP 10 OVERALL MILEAGE</div>
+                <div class="gender-counts"><span style="color: var(--text-secondary);">All Categories Combined • Ranked by Total KM</span></div>
+            </div>
+            <div class="leaderboard-card" style="max-width: 700px; margin: 0 auto;">
+                <div class="leaderboard-header"><div class="leaderboard-icon overall">🏆</div><div class="leaderboard-title">Overall Leaders</div></div>
+                <div class="leaderboard-list">
+                    <div class="leaderboard-item finished"><span class="rank gold">1</span><span class="athlete-name">Castro, Arnel 🏆</span><span class="category-badge elite">Elite</span><span class="km-value finished">1,274.08</span></div>
+                    <div class="leaderboard-item finished"><span class="rank silver">2</span><span class="athlete-name">Salandanan, Anne Jeline 🏆</span><span class="category-badge elite">Elite</span><span class="km-value finished">1,093.80</span></div>
+                    <div class="leaderboard-item finished"><span class="rank bronze">3</span><span class="athlete-name">Palaypayon, Erick 🏆</span><span class="category-badge elite">Elite</span><span class="km-value finished">1,063.58</span></div>
+                    <div class="leaderboard-item"><span class="rank">4</span><span class="athlete-name">Ventura, Giussepp 🏆</span><span class="category-badge elite">Elite</span><span class="km-value overall">715.22</span></div>
+                    <div class="leaderboard-item"><span class="rank">5</span><span class="athlete-name">Ponsica, Mylene 🏆</span><span class="category-badge igniter">Igniter</span><span class="km-value overall">552.95</span></div>
+                    <div class="leaderboard-item"><span class="rank">6</span><span class="athlete-name">Cristobal, Claire 🏆</span><span class="category-badge igniter">Igniter</span><span class="km-value overall">496.10</span></div>
+                    <div class="leaderboard-item"><span class="rank">7</span><span class="athlete-name">Perdon, Morris Raymond 🏆</span><span class="category-badge igniter">Igniter</span><span class="km-value overall">485.61</span></div>
+                    <div class="leaderboard-item"><span class="rank">8</span><span class="athlete-name">Arzaga, Charlie 🏆</span><span class="category-badge elite">Elite</span><span class="km-value overall">477.73</span></div>
+                    <div class="leaderboard-item"><span class="rank">9</span><span class="athlete-name">Daitol, Charles 🏆</span><span class="category-badge elite">Elite</span><span class="km-value overall">458.30</span></div>
+                    <div class="leaderboard-item"><span class="rank">10</span><span class="athlete-name">Batle, Luzmae Ann 🏆</span><span class="category-badge elite">Elite</span><span class="km-value overall">432.63</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 10 Male Overall -->
+        <div id="male" class="leaderboard-container">
+            <div class="category-header">
+                <div class="category-title" style="color: var(--male);">👨 TOP 10 MALE OVERALL</div>
+                <div class="gender-counts"><span style="color: var(--text-secondary);">All Categories Combined • 82 Male Participants</span></div>
+            </div>
+            <div class="leaderboard-card" style="max-width: 700px; margin: 0 auto;">
+                <div class="leaderboard-header"><div class="leaderboard-icon male">👨</div><div class="leaderboard-title">Male Overall Leaders</div></div>
+                <div class="leaderboard-list">
+                    <div class="leaderboard-item finished"><span class="rank gold">1</span><span class="athlete-name">Castro, Arnel 🏆</span><span class="category-badge elite">Elite</span><span class="km-value finished">1,274.08</span></div>
+                    <div class="leaderboard-item finished"><span class="rank silver">2</span><span class="athlete-name">Palaypayon, Erick 🏆</span><span class="category-badge elite">Elite</span><span class="km-value finished">1,063.58</span></div>
+                    <div class="leaderboard-item finished"><span class="rank bronze">3</span><span class="athlete-name">Ventura, Giussepp 🏆</span><span class="category-badge elite">Elite</span><span class="km-value finished">715.22</span></div>
+                    <div class="leaderboard-item"><span class="rank">4</span><span class="athlete-name">Perdon, Morris Raymond 🏆</span><span class="category-badge igniter">Igniter</span><span class="km-value male">485.61</span></div>
+                    <div class="leaderboard-item"><span class="rank">5</span><span class="athlete-name">Arzaga, Charlie 🏆</span><span class="category-badge elite">Elite</span><span class="km-value male">477.73</span></div>
+                    <div class="leaderboard-item"><span class="rank">6</span><span class="athlete-name">Daitol, Charles 🏆</span><span class="category-badge elite">Elite</span><span class="km-value male">458.30</span></div>
+                    <div class="leaderboard-item"><span class="rank">7</span><span class="athlete-name">Diaz, Antonio Jr 🏆</span><span class="category-badge elite">Elite</span><span class="km-value male">397.60</span></div>
+                    <div class="leaderboard-item"><span class="rank">8</span><span class="athlete-name">Regis, Michael Juanito 🏆</span><span class="category-badge elite">Elite</span><span class="km-value male">383.90</span></div>
+                    <div class="leaderboard-item"><span class="rank">9</span><span class="athlete-name">Aguason, Krissel John 🏆</span><span class="category-badge elite">Elite</span><span class="km-value male">381.38</span></div>
+                    <div class="leaderboard-item"><span class="rank">10</span><span class="athlete-name">Andrade, Aron Keith 🏆</span><span class="category-badge elite">Elite</span><span class="km-value male">372.36</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 10 Female Overall -->
+        <div id="female" class="leaderboard-container">
+            <div class="category-header">
+                <div class="category-title" style="color: var(--female);">👩 TOP 10 FEMALE OVERALL</div>
+                <div class="gender-counts"><span style="color: var(--text-secondary);">All Categories Combined • 78 Female Participants</span></div>
+            </div>
+            <div class="leaderboard-card" style="max-width: 700px; margin: 0 auto;">
+                <div class="leaderboard-header"><div class="leaderboard-icon female">👩</div><div class="leaderboard-title">Female Overall Leaders</div></div>
+                <div class="leaderboard-list">
+                    <div class="leaderboard-item finished"><span class="rank gold">1</span><span class="athlete-name">Salandanan, Anne Jeline 🏆</span><span class="category-badge elite">Elite</span><span class="km-value finished">1,093.80</span></div>
+                    <div class="leaderboard-item"><span class="rank silver">2</span><span class="athlete-name">Ponsica, Mylene 🏆</span><span class="category-badge igniter">Igniter</span><span class="km-value female">552.95</span></div>
+                    <div class="leaderboard-item"><span class="rank bronze">3</span><span class="athlete-name">Cristobal, Claire 🏆</span><span class="category-badge igniter">Igniter</span><span class="km-value female">496.10</span></div>
+                    <div class="leaderboard-item"><span class="rank">4</span><span class="athlete-name">Batle, Luzmae Ann 🏆</span><span class="category-badge elite">Elite</span><span class="km-value female">432.63</span></div>
+                    <div class="leaderboard-item"><span class="rank">5</span><span class="athlete-name">Fajardo, Lizzie 🏆</span><span class="category-badge igniter">Igniter</span><span class="km-value female">428.74</span></div>
+                    <div class="leaderboard-item"><span class="rank">6</span><span class="athlete-name">Flores, Casi 🏆</span><span class="category-badge challenger">Challenger</span><span class="km-value female">351.57</span></div>
+                    <div class="leaderboard-item"><span class="rank">7</span><span class="athlete-name">Funtilar, Maria Angelica 🏆</span><span class="category-badge elite">Elite</span><span class="km-value female">340.19</span></div>
+                    <div class="leaderboard-item"><span class="rank">8</span><span class="athlete-name">Lamanilao, Rasyl Mae 🏆</span><span class="category-badge elite">Elite</span><span class="km-value female">306.54</span></div>
+                    <div class="leaderboard-item"><span class="rank">9</span><span class="athlete-name">De Vera, Lyn 🏆</span><span class="category-badge igniter">Igniter</span><span class="km-value female">303.20</span></div>
+                    <div class="leaderboard-item"><span class="rank">10</span><span class="athlete-name">Dacasin, Jeny Lou</span><span class="category-badge elite">Elite</span><span class="km-value female">263.50</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Finishers -->
+        <div id="finishers" class="leaderboard-container">
+            <div class="category-header">
+                <div class="category-title" style="color: var(--finished);">🏆 ALL FINISHERS BY CATEGORY</div>
+                <div class="gender-counts"><span style="color: var(--text-secondary);">72 Total Finishers • Athletes Who Achieved Their Goals</span></div>
+            </div>
+            <div class="finishers-grid">
+                <!-- Elite Finishers -->
+                <div class="finisher-category-card elite">
+                    <div class="leaderboard-header"><div class="leaderboard-icon finisher">🥇</div><div class="leaderboard-title">Elite 300 KM</div></div>
+                    <div class="finisher-count elite">21 Finishers</div>
+                    <div class="leaderboard-list pending-list">
+                        <div class="leaderboard-item finished"><span class="athlete-name">Salandanan, Anne Jeline</span><span class="gender-badge female">F</span><span class="km-value finished">1,093.80</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Batle, Luzmae Ann</span><span class="gender-badge female">F</span><span class="km-value finished">432.63</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Funtilar, Maria Angelica</span><span class="gender-badge female">F</span><span class="km-value finished">340.19</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Lamanilao, Rasyl Mae</span><span class="gender-badge female">F</span><span class="km-value finished">306.54</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Castro, Arnel</span><span class="gender-badge male">M</span><span class="km-value finished">1,274.08</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Palaypayon, Erick</span><span class="gender-badge male">M</span><span class="km-value finished">1,063.58</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Ventura, Giussepp</span><span class="gender-badge male">M</span><span class="km-value finished">715.22</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Arzaga, Charlie</span><span class="gender-badge male">M</span><span class="km-value finished">477.73</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Daitol, Charles</span><span class="gender-badge male">M</span><span class="km-value finished">458.30</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Diaz, Antonio Jr</span><span class="gender-badge male">M</span><span class="km-value finished">397.60</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Regis, Michael Juanito</span><span class="gender-badge male">M</span><span class="km-value finished">383.90</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Aguason, Krissel John</span><span class="gender-badge male">M</span><span class="km-value finished">381.38</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Andrade, Aron Keith</span><span class="gender-badge male">M</span><span class="km-value finished">372.36</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Manuel, Roderick</span><span class="gender-badge male">M</span><span class="km-value finished">371.40</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Abrogar, Angelo</span><span class="gender-badge male">M</span><span class="km-value finished">365.54</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Tapis, Lloyd</span><span class="gender-badge male">M</span><span class="km-value finished">347.02</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Samson, Russell</span><span class="gender-badge male">M</span><span class="km-value finished">341.61</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Visande, Joshua</span><span class="gender-badge male">M</span><span class="km-value finished">325.75</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Lucas, Senen</span><span class="gender-badge male">M</span><span class="km-value finished">321.38</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Remerata, Mickhel Davee</span><span class="gender-badge male">M</span><span class="km-value finished">312.50</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Alicer, King Walter</span><span class="gender-badge male">M</span><span class="km-value finished">302.82</span></div>
+                    </div>
+                </div>
+
+                <!-- Igniter Finishers -->
+                <div class="finisher-category-card igniter">
+                    <div class="leaderboard-header"><div class="leaderboard-icon finisher">🥈</div><div class="leaderboard-title">Igniter 100 KM</div></div>
+                    <div class="finisher-count igniter">39 Finishers</div>
+                    <div class="leaderboard-list pending-list">
+                        <div class="leaderboard-item finished"><span class="athlete-name">Ponsica, Mylene</span><span class="gender-badge female">F</span><span class="km-value finished">552.95</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Cristobal, Claire</span><span class="gender-badge female">F</span><span class="km-value finished">496.10</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Perdon, Morris Raymond</span><span class="gender-badge male">M</span><span class="km-value finished">485.61</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Fajardo, Lizzie</span><span class="gender-badge female">F</span><span class="km-value finished">428.74</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">De Vera, Lyn</span><span class="gender-badge female">F</span><span class="km-value finished">303.20</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Anglo, Edward</span><span class="gender-badge male">M</span><span class="km-value finished">256.30</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Guan, Hazel Grace</span><span class="gender-badge female">F</span><span class="km-value finished">247.83</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Gomez, Jonah</span><span class="gender-badge female">F</span><span class="km-value finished">196.80</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Padada, Leonard</span><span class="gender-badge male">M</span><span class="km-value finished">181.80</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Escosio, Jessa Mae</span><span class="gender-badge female">F</span><span class="km-value finished">174.51</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Villasin, Jhan Vincent</span><span class="gender-badge male">M</span><span class="km-value finished">169.77</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Zambale, Mary Ann</span><span class="gender-badge female">F</span><span class="km-value finished">158.05</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Tizon, Princess Nicole</span><span class="gender-badge female">F</span><span class="km-value finished">147.10</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Parrera, Alexis</span><span class="gender-badge female">F</span><span class="km-value finished">142.70</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Valencia, John Vincent</span><span class="gender-badge male">M</span><span class="km-value finished">139.81</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Aque, Arbill</span><span class="gender-badge male">M</span><span class="km-value finished">139.70</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Cueva, Lilian</span><span class="gender-badge female">F</span><span class="km-value finished">138.80</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Ongyaco, Sharmaine</span><span class="gender-badge female">F</span><span class="km-value finished">138.23</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Ramos, John Sedric</span><span class="gender-badge male">M</span><span class="km-value finished">137.30</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Hubahib, Mariel</span><span class="gender-badge female">F</span><span class="km-value finished">131.07</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Villanueva, Kent</span><span class="gender-badge male">M</span><span class="km-value finished">129.07</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Mercado, Chrizelyne</span><span class="gender-badge female">F</span><span class="km-value finished">127.72</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Turin, Jessie Rom</span><span class="gender-badge male">M</span><span class="km-value finished">124.49</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Donato, Jamea Venice</span><span class="gender-badge female">F</span><span class="km-value finished">122.80</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Padin, Japhet</span><span class="gender-badge male">M</span><span class="km-value finished">120.20</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Torres, Alfonso</span><span class="gender-badge male">M</span><span class="km-value finished">118.99</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Pepito, Diane</span><span class="gender-badge female">F</span><span class="km-value finished">118.58</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Milana, Ryah Anne</span><span class="gender-badge female">F</span><span class="km-value finished">116.70</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Mahipos, Jemima</span><span class="gender-badge female">F</span><span class="km-value finished">116.11</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Teves, Glazel Mei Anne</span><span class="gender-badge female">F</span><span class="km-value finished">115.51</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Padasay, Jhan Rodeen</span><span class="gender-badge male">M</span><span class="km-value finished">113.66</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Taleño, Michelle Angelika</span><span class="gender-badge female">F</span><span class="km-value finished">111.32</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Millora, Angelo James</span><span class="gender-badge male">M</span><span class="km-value finished">110.44</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Gloria, Karmela Leanne</span><span class="gender-badge female">F</span><span class="km-value finished">108.80</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Mijares, Rey Mart</span><span class="gender-badge male">M</span><span class="km-value finished">106.18</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Pastor, Duke Ian</span><span class="gender-badge male">M</span><span class="km-value finished">102.02</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Palpal-latoc, Angelo</span><span class="gender-badge male">M</span><span class="km-value finished">102.17</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Joson, Marianne</span><span class="gender-badge female">F</span><span class="km-value finished">100.07</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Sanay, Leonard</span><span class="gender-badge male">M</span><span class="km-value finished">100.13</span></div>
+                    </div>
+                </div>
+
+                <!-- Challenger Finishers -->
+                <div class="finisher-category-card challenger">
+                    <div class="leaderboard-header"><div class="leaderboard-icon finisher">🥉</div><div class="leaderboard-title">Challenger 50 KM</div></div>
+                    <div class="finisher-count challenger">12 Finishers</div>
+                    <div class="leaderboard-list">
+                        <div class="leaderboard-item finished"><span class="athlete-name">Flores, Casi</span><span class="gender-badge female">F</span><span class="km-value finished">351.57</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Quimson, Annette</span><span class="gender-badge female">F</span><span class="km-value finished">118.00</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Villanueva, Novie Alfred</span><span class="gender-badge male">M</span><span class="km-value finished">100.59</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Dulhao, Dulce Rose</span><span class="gender-badge female">F</span><span class="km-value finished">88.41</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Olarte, Xanders</span><span class="gender-badge male">M</span><span class="km-value finished">88.20</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Ramos, Allana Gilda</span><span class="gender-badge female">F</span><span class="km-value finished">72.10</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Sibal, Raye Vanne</span><span class="gender-badge male">M</span><span class="km-value finished">58.72</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Izon, Allea</span><span class="gender-badge female">F</span><span class="km-value finished">57.78</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Subido, Kristine</span><span class="gender-badge female">F</span><span class="km-value finished">57.18</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Vivas, Nica Angela</span><span class="gender-badge female">F</span><span class="km-value finished">54.44</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Gatdula, Khristine Joy</span><span class="gender-badge female">F</span><span class="km-value finished">50.96</span></div>
+                        <div class="leaderboard-item finished"><span class="athlete-name">Graycochea, Shaira Shane</span><span class="gender-badge female">F</span><span class="km-value finished">50.69</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Still In Progress -->
+        <div id="pending" class="leaderboard-container">
+            <div class="category-header">
+                <div class="category-title" style="color: var(--pending);">⏳ STILL IN PROGRESS</div>
+                <div class="gender-counts"><span style="color: var(--text-secondary);">88 Participants • Sorted by Remaining KM (Closest to Goal First)</span></div>
+            </div>
+            <div class="three-column">
+                <!-- Elite Still In Progress -->
+                <div class="finisher-category-card pending" style="border-top-color: var(--elite);">
+                    <div class="leaderboard-header"><div class="leaderboard-icon pending">🥇</div><div class="leaderboard-title">Elite 300 KM</div></div>
+                    <div class="finisher-count pending">31 Remaining</div>
+                    <div class="leaderboard-list pending-list">
+                        <div class="leaderboard-item close"><span class="athlete-name">Sorima, Reno Roy</span><span class="gender-badge male">M</span><span class="remaining-badge close">20.97 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Dacasin, Jeny Lou</span><span class="gender-badge female">F</span><span class="remaining-badge">36.50 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Clara, Alfredo Jr.</span><span class="gender-badge male">M</span><span class="remaining-badge">38.70 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Villame, Joshua</span><span class="gender-badge male">M</span><span class="remaining-badge">42.61 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Dacara, Noel</span><span class="gender-badge male">M</span><span class="remaining-badge">43.56 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Gotera, Ulyses Gerald</span><span class="gender-badge male">M</span><span class="remaining-badge">69.40 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Sales, Lendon</span><span class="gender-badge male">M</span><span class="remaining-badge">84.48 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Penafiel, Mae Anne</span><span class="gender-badge female">F</span><span class="remaining-badge">100.23 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Moneda, Christian</span><span class="gender-badge male">M</span><span class="remaining-badge">102.15 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Arreza, Jess Clarence</span><span class="gender-badge male">M</span><span class="remaining-badge">111.51 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Enrile, Jer Anthony</span><span class="gender-badge male">M</span><span class="remaining-badge">111.92 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Arante, Renato</span><span class="gender-badge male">M</span><span class="remaining-badge">112.07 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Dano, Charlie Magne</span><span class="gender-badge male">M</span><span class="remaining-badge">142.16 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Navarro, Kim Andrew</span><span class="gender-badge male">M</span><span class="remaining-badge">145.06 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Sorilla, Ibby Joice</span><span class="gender-badge female">F</span><span class="remaining-badge">145.90 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Mullet, John Michael</span><span class="gender-badge male">M</span><span class="remaining-badge">152.40 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Llido, Nica Andrea</span><span class="gender-badge female">F</span><span class="remaining-badge">164.61 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Peticaros, Aiza Joyce</span><span class="gender-badge female">F</span><span class="remaining-badge">169.70 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Valdevieso, Jessa</span><span class="gender-badge female">F</span><span class="remaining-badge">173.68 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Catienza, Daniel</span><span class="gender-badge male">M</span><span class="remaining-badge">189.60 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Marzo, Teilhard Theo</span><span class="gender-badge male">M</span><span class="remaining-badge">208.40 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Sison, Alexis John</span><span class="gender-badge male">M</span><span class="remaining-badge">209.90 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Celebre, Maryam</span><span class="gender-badge female">F</span><span class="remaining-badge">210.23 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Escudero, Schyrien</span><span class="gender-badge female">F</span><span class="remaining-badge">232.90 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Quisol, Ara</span><span class="gender-badge female">F</span><span class="remaining-badge">251.23 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Ureta, John Mark</span><span class="gender-badge male">M</span><span class="remaining-badge">255.52 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Antalan, Christine Joy</span><span class="gender-badge female">F</span><span class="remaining-badge">271.62 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Serdan, Ryan</span><span class="gender-badge male">M</span><span class="remaining-badge">271.70 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Marte, Genelito</span><span class="gender-badge male">M</span><span class="remaining-badge">288.92 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Sumargo, Vencient</span><span class="gender-badge male">M</span><span class="remaining-badge">289.85 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Baloca, Jean Paula</span><span class="gender-badge female">F</span><span class="remaining-badge">300.00 km</span></div>
+                    </div>
+                </div>
+
+                <!-- Igniter Still In Progress -->
+                <div class="finisher-category-card pending" style="border-top-color: var(--igniter);">
+                    <div class="leaderboard-header"><div class="leaderboard-icon pending">🥈</div><div class="leaderboard-title">Igniter 100 KM</div></div>
+                    <div class="finisher-count pending">41 Remaining</div>
+                    <div class="leaderboard-list pending-list">
+                        <div class="leaderboard-item close"><span class="athlete-name">Subillaga, Ephraim Nick</span><span class="gender-badge male">M</span><span class="remaining-badge close">0.09 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Santillan, Maria Shel</span><span class="gender-badge female">F</span><span class="remaining-badge close">0.73 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Patong, Chris</span><span class="gender-badge male">M</span><span class="remaining-badge close">4.48 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Torio, Bernadeth</span><span class="gender-badge female">F</span><span class="remaining-badge close">4.64 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Pagobo, Chinley Jane</span><span class="gender-badge female">F</span><span class="remaining-badge close">5.30 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Dico, Marjorie</span><span class="gender-badge female">F</span><span class="remaining-badge close">5.50 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Interno, Gio Yves</span><span class="gender-badge male">M</span><span class="remaining-badge close">5.96 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Fabon, Divine</span><span class="gender-badge female">F</span><span class="remaining-badge close">7.63 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Morquida, Annaleah</span><span class="gender-badge female">F</span><span class="remaining-badge close">8.75 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Pelongo, Rhenalyn</span><span class="gender-badge female">F</span><span class="remaining-badge close">9.10 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Rodriguez, Jamaica</span><span class="gender-badge female">F</span><span class="remaining-badge close">9.69 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Canlas, Ellaine</span><span class="gender-badge female">F</span><span class="remaining-badge">11.09 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">De Guia, Julia Rovie</span><span class="gender-badge female">F</span><span class="remaining-badge">11.61 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Rosauro, Leo Jade</span><span class="gender-badge male">M</span><span class="remaining-badge">11.80 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Bacalso, Liel</span><span class="gender-badge male">M</span><span class="remaining-badge">14.11 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Hinuguin, Ainee Joy</span><span class="gender-badge female">F</span><span class="remaining-badge">14.50 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Salcedo, Chanda</span><span class="gender-badge female">F</span><span class="remaining-badge">17.18 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Letigio, Marjorie</span><span class="gender-badge female">F</span><span class="remaining-badge">19.70 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Basuel, Adrianne John</span><span class="gender-badge male">M</span><span class="remaining-badge">20.06 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Manalo, Juan Karlo</span><span class="gender-badge male">M</span><span class="remaining-badge">20.18 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Carniyan, Joyce</span><span class="gender-badge female">F</span><span class="remaining-badge">21.35 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Laud, Elisha Janniah</span><span class="gender-badge female">F</span><span class="remaining-badge">22.25 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Golla, James Edward</span><span class="gender-badge male">M</span><span class="remaining-badge">27.80 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Maceda, Kolline</span><span class="gender-badge female">F</span><span class="remaining-badge">31.74 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Medrina, Cherry</span><span class="gender-badge female">F</span><span class="remaining-badge">36.64 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Moll, Mario Eduardo</span><span class="gender-badge male">M</span><span class="remaining-badge">39.60 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Albarico, Jasmine Fate</span><span class="gender-badge female">F</span><span class="remaining-badge">40.43 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Prajes, John Peter</span><span class="gender-badge male">M</span><span class="remaining-badge">43.30 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Jumao-as, Maria Niña</span><span class="gender-badge female">F</span><span class="remaining-badge">47.00 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Sarol, Jasper Ronnie</span><span class="gender-badge male">M</span><span class="remaining-badge">47.60 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Aderes, Angelo</span><span class="gender-badge male">M</span><span class="remaining-badge">48.61 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Gellica, Jhonlloyd</span><span class="gender-badge male">M</span><span class="remaining-badge">79.78 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Bautista, Linette</span><span class="gender-badge female">F</span><span class="remaining-badge">80.12 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Maceda, Lourhen Paul</span><span class="gender-badge male">M</span><span class="remaining-badge">80.20 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Villegas, Edouard</span><span class="gender-badge male">M</span><span class="remaining-badge">81.00 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Inayawan, Mary Grace</span><span class="gender-badge female">F</span><span class="remaining-badge">84.49 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Madrazo, Evanie</span><span class="gender-badge female">F</span><span class="remaining-badge">91.39 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Anicoy, Jeffrey</span><span class="gender-badge male">M</span><span class="remaining-badge">100.00 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Duarte, Nelmark Jhon</span><span class="gender-badge male">M</span><span class="remaining-badge">100.00 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Echague, Ellyn</span><span class="gender-badge female">F</span><span class="remaining-badge">100.00 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Salen, Wilbert</span><span class="gender-badge male">M</span><span class="remaining-badge">100.00 km</span></div>
+                    </div>
+                </div>
+
+                <!-- Challenger Still In Progress -->
+                <div class="finisher-category-card pending" style="border-top-color: #B388FF;">
+                    <div class="leaderboard-header"><div class="leaderboard-icon pending">🥉</div><div class="leaderboard-title">Challenger 50 KM</div></div>
+                    <div class="finisher-count pending">16 Remaining</div>
+                    <div class="leaderboard-list pending-list">
+                        <div class="leaderboard-item close"><span class="athlete-name">Tarrobago-Moll, Ivy</span><span class="gender-badge female">F</span><span class="remaining-badge close">1.21 km</span></div>
+                        <div class="leaderboard-item close"><span class="athlete-name">Suaking, Elyza</span><span class="gender-badge female">F</span><span class="remaining-badge close">6.04 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Espino, Remina</span><span class="gender-badge female">F</span><span class="remaining-badge">13.01 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Caparoso, Alyssa</span><span class="gender-badge female">F</span><span class="remaining-badge">15.60 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Palad, Jonelle</span><span class="gender-badge male">M</span><span class="remaining-badge">16.57 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Bulahan, Maybelle</span><span class="gender-badge female">F</span><span class="remaining-badge">16.59 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Medil, Johanson</span><span class="gender-badge male">M</span><span class="remaining-badge">20.00 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Cereno, Shaira</span><span class="gender-badge female">F</span><span class="remaining-badge">25.53 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Belandres, Estella</span><span class="gender-badge female">F</span><span class="remaining-badge">29.35 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Pineda, Joana Marie</span><span class="gender-badge female">F</span><span class="remaining-badge">30.91 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Ruiz, Diana</span><span class="gender-badge female">F</span><span class="remaining-badge">34.97 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Dasalla, Cris Eric Jr.</span><span class="gender-badge male">M</span><span class="remaining-badge">40.55 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Vios, Kurt Jason</span><span class="gender-badge male">M</span><span class="remaining-badge">45.11 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">David, Kurt Dade</span><span class="gender-badge male">M</span><span class="remaining-badge">46.02 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Alonzo, Ritz</span><span class="gender-badge male">M</span><span class="remaining-badge">46.22 km</span></div>
+                        <div class="leaderboard-item pending"><span class="athlete-name">Dela Cueva, Gabriel</span><span class="gender-badge male">M</span><span class="remaining-badge">50.00 km</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Groups -->
+        <div id="groups" class="leaderboard-container">
+            <div class="category-header">
+                <div class="category-title" style="color: var(--finished);">🏢 GROUP RANKINGS</div>
+                <div class="gender-counts"><span style="color: var(--text-secondary);">11 Groups • Ranked by Average KM per Runner</span></div>
+            </div>
+            <div class="groups-grid">
+                <div class="group-card exceeded">
+                    <div class="group-card-header"><span class="group-rank top-3">1</span><div class="group-icon">💻</div><span class="group-name">G2 - Kassatech</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">7</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">335.0</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span style="color: var(--finished);">180.4% ✓</span></div><div class="group-progress-bar"><div class="group-progress-fill exceeded" style="width: 100%;"></div></div></div>
+                </div>
+                <div class="group-card exceeded">
+                    <div class="group-card-header"><span class="group-rank top-3">2</span><div class="group-icon">💰</div><span class="group-name">G4 - Fin/BPO/RE/PM/Acad</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">16</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">275.0</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span style="color: var(--finished);">179.6% ✓</span></div><div class="group-progress-bar"><div class="group-progress-fill exceeded" style="width: 100%;"></div></div></div>
+                </div>
+                <div class="group-card exceeded">
+                    <div class="group-card-header"><span class="group-rank top-3">3</span><div class="group-icon">🏢</div><span class="group-name">G1 - Shared Services</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">17</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">203.2</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span style="color: var(--finished);">138.1% ✓</span></div><div class="group-progress-bar"><div class="group-progress-fill exceeded" style="width: 100%;"></div></div></div>
+                </div>
+                <div class="group-card exceeded">
+                    <div class="group-card-header"><span class="group-rank">4</span><div class="group-icon">🏝️</div><span class="group-name">G8 - Visayas 1 & 2</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">11</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">196.3</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span style="color: var(--finished);">127.0% ✓</span></div><div class="group-progress-bar"><div class="group-progress-fill exceeded" style="width: 100%;"></div></div></div>
+                </div>
+                <div class="group-card exceeded">
+                    <div class="group-card-header"><span class="group-rank">5</span><div class="group-icon">👔</div><span class="group-name">G11 - Execom</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">1</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">158.1</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span style="color: var(--finished);">158.1% ✓</span></div><div class="group-progress-bar"><div class="group-progress-fill exceeded" style="width: 100%;"></div></div></div>
+                </div>
+                <div class="group-card">
+                    <div class="group-card-header"><span class="group-rank">6</span><div class="group-icon">🔬</div><span class="group-name">G6 - R&D</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">18</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">150.5</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span>84.6%</span></div><div class="group-progress-bar"><div class="group-progress-fill" style="width: 84.6%;"></div></div></div>
+                </div>
+                <div class="group-card">
+                    <div class="group-card-header"><span class="group-rank">7</span><div class="group-icon">🖥️</div><span class="group-name">G10 - Tech Services 2</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">20</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">132.2</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span>75.5%</span></div><div class="group-progress-bar"><div class="group-progress-fill" style="width: 75.5%;"></div></div></div>
+                </div>
+                <div class="group-card">
+                    <div class="group-card-header"><span class="group-rank">8</span><div class="group-icon">💼</div><span class="group-name">G9 - Tech Services 1</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">21</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">121.0</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span>64.3%</span></div><div class="group-progress-bar"><div class="group-progress-fill" style="width: 64.3%;"></div></div></div>
+                </div>
+                <div class="group-card exceeded">
+                    <div class="group-card-header"><span class="group-rank">9</span><div class="group-icon">⚡</div><span class="group-name">G7 - Acceltech</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">22</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">114.1</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span style="color: var(--finished);">119.5% ✓</span></div><div class="group-progress-bar"><div class="group-progress-fill exceeded" style="width: 100%;"></div></div></div>
+                </div>
+                <div class="group-card">
+                    <div class="group-card-header"><span class="group-rank">10</span><div class="group-icon">🌴</div><span class="group-name">G5 - Mindanao 1 & 2</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">15</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">106.5</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span>59.2%</span></div><div class="group-progress-bar"><div class="group-progress-fill" style="width: 59.2%;"></div></div></div>
+                </div>
+                <div class="group-card">
+                    <div class="group-card-header"><span class="group-rank">11</span><div class="group-icon">🏭</div><span class="group-name">G3 - Mfg & Agrid Luzon</span></div>
+                    <div class="group-stats"><div class="group-stat"><div class="group-stat-value">12</div><div class="group-stat-label">Runners</div></div><div class="group-stat"><div class="group-stat-value">104.8</div><div class="group-stat-label">Avg KM</div></div></div>
+                    <div class="group-progress"><div class="group-progress-header"><span>Progress</span><span>83.9%</span></div><div class="group-progress-bar"><div class="group-progress-fill" style="width: 83.9%;"></div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>🏃 Wellness Run 2026 Q1 Challenge • <span class="runner-animation">🏃</span> Keep Running! • Updated: Week 12 (Mar. 22, 2026)</p>
+        </footer>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.leaderboard-container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
